@@ -4,7 +4,6 @@ IRrecv irrecv(receiver);  //create a new instance of receiver
 decode_results results;
 #include <Target2.h>
 #include "TM1637.h"
-#include "TM1637.h"
 #define CLK 2//pins definitions for TM1637 and can be changed to other ports       
 #define DIO 3
 TM1637 tm1637(CLK, DIO);
