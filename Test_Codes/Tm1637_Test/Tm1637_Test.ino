@@ -1,14 +1,9 @@
-#include <IRremote.h> //include the library
-int receiver = 11;  //initialise pin 11 as receiver pin
-IRrecv irrecv(receiver);  //create a new instance of receiver
-decode_results results;
 #include <Target2.h>
 #include "TM1637.h"
 #define CLK 2//pins definitions for TM1637 and can be changed to other ports       
 #define DIO 3
 TM1637 tm1637(CLK, DIO);
 
-#define VIBRATION_DELAY 200
 
 int ones;
 int tens;
@@ -22,29 +17,15 @@ void setup()
   Serial.begin(9600);
   // In case the interrupt driver crashes on setup, give a clue
   // to the user what's going on.
-  irrecv.enableIRIn(); // Start the receiver
-
   tm1637.init();
   tm1637.set(BRIGHT_TYPICAL);//BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
-  pinMode(MoPin, OUTPUT);
 }
 
 void loop()
 {
-  if (irrecv.decode(&results)) {
-    Serial.println(results.value);
-    if (results.value == IRSEND_SCORE_PLAYER1) {
-      score++;
-      vibrateScore();
-    }
-    else if(results.value == IRSEND_PENALTY_PLAYER1){
-      score /= 2;
-      vibratePenalty();
-    }
-    irrecv.resume(); // Receive the next value
-  }
-  displayNum(score);
-  delay(100); // delete this line if it doesn't reduce the noise.
+  static long counter = 1;
+  displayNum(counter);
+  counter++;
 }
 
 
@@ -98,18 +79,4 @@ void displayNum(int inputNum) {
     tm1637.display(0, 10);
   }
 }
-
-void vibrateScore(){
-  digitalWrite(MoPin, HIGH);
-  delay(VIBRATION_DELAY);
-  digitalWrite(MoPin, LOW);
-  delay(VIBRATION_DELAY);
-}
-
-void vibratePenalty(){
-  vibrateScore();
-  vibrateScore();
-}
-
-
 

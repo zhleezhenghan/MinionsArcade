@@ -99,7 +99,7 @@ void loop() {
       recvSignal[i] = ' ';  // reset the signal back to blank to avoid double counting
       receiveData(target_Address[i], NUM_BYTES, i);  // update the signal if a specific target is hit
       updateScoreAndState(target_Address[i], recvSignal[i]);  //updating the score of each player and states
-      pingPlayerGun(target_Address[i], recvSignal[i]);
+      pingPlayerGun();
     }
 
     //  check if all targets are dead, then choose random targets to revive
@@ -212,24 +212,15 @@ void updateScoreAndState(int slaveAddress, char recvSignal) {
   target_State[slaveAddress] = DEAD;  // change state to dead if it's hit
 }
 
-//  sends IR signal to the player's gun to vibrate and update score on player gun's arduino
-void pingPlayerGun(int slaveAddress, char recvSignal) {
-  if (recvSignal == HIT_BY_PLAYER_1) {
-    if (slaveAddress == GIRL) {
-      irsend1.sendSony(IRSEND_PENALTY_PLAYER1, 12);
-    }
-    else {
-      irsend1.sendSony(IRSEND_SCORE_PLAYER1, 12);
-    }
-  }
-  else if (recvSignal == HIT_BY_PLAYER_2) {
-    if (slaveAddress == GIRL) {
-      irsend1.sendSony(IRSEND_PENALTY_PLAYER2, 12);
-    }
-    else {
-      irsend1.sendSony(IRSEND_SCORE_PLAYER2, 12);
-    }
-  }
+/*  sends IR signal to the player's gun to vibrate and update score on player gun's arduino
+ *   This signal is continuously sent out by the IR transmitter and will contain information on each
+ *   player's current score. The gun receiver will receive the signal and parse out their respective score and 
+ *   update the sevseg accordingly.
+ */
+void pingPlayerGun() {
+  //  the 2 player scores are parsed into a 4 digit number. (e.g. player1_score = 2, player2_score = 4, score = 0204)
+  int score_send = player1_score*100 + player2_score;
+  irsend1.sendSony(score_send, 12);
 }
 
 //  check if all targets are dead

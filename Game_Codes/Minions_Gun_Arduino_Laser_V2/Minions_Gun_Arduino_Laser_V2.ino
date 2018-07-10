@@ -12,7 +12,7 @@ int val = 0;
 #endif
 
 #define PIN 6
-#define NUMPIXELS 70
+#define NUMPIXELS 14
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 int minMana = 0;

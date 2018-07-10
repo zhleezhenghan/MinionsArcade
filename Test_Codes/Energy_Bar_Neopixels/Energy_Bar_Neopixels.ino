@@ -5,7 +5,7 @@
 
 
 #define PIN 6
-#define NUMPIXELS 15
+#define NUMPIXELS 14
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 int minMana = 0;
@@ -19,7 +19,7 @@ void setup() {
   strip.show();
   Serial.begin(9600);
   for(int i=0; i<NUMPIXELS; i++){
-    strip.setPixelColor(i, strip.Color(0, 0, 0));
+    strip.setPixelColor(i, strip.Color(150, 150, 0));
     strip.show();
   }
 }

@@ -1,12 +1,12 @@
 /*
- * Code for slave arduino in Minions game
- * Transmits '1' for player1 hit, '2' for player2 hit,
- * ' ' for nothing happening, and 'D' for getting the target to die after 2 seconds
- * 
- * Receives data from master arduino: 'd' to kill target, 'r' to revive target
- * 
- * Receives IR signal from gun laser: 1 for player1 and 2 for player2
- */
+   Code for slave arduino in Minions game
+   Transmits '1' for player1 hit, '2' for player2 hit,
+   ' ' for nothing happening, and 'D' for getting the target to die after 2 seconds
+
+   Receives data from master arduino: 'd' to kill target, 'r' to revive target
+
+   Receives IR signal from gun laser: 1 for player1 and 2 for player2
+*/
 #include <Wire.h>
 
 //  initialise IR receiver
@@ -21,8 +21,8 @@ decode_results results;
 
 Servo targetServo;
 Target2 target;
-int LEDpin = 2;
-int servoPin = 3;
+int LEDpin = 12;
+int servoPin = 10;
 
 //  initialise receive data from master arduino
 char recvSignal = ' ';
@@ -41,6 +41,7 @@ void setup() {
   target.attachServo(targetServo);
   //  setting type of target: Minion ('M') or Girl ('G')
   target.setType('M');
+  target.revive();
 
   //  initialising starting position of servos
   targetServo.write(0);
@@ -51,11 +52,11 @@ void setup() {
 void loop() {
   unsigned long startTime = millis();
   static unsigned long counter = 0;
-  if (irrecv.decode(&results)){ //if we have received an IR signal
+  if (irrecv.decode(&results)) { //if we have received an IR signal
     irRecvSignal = results.value;
     Serial.print("Received signal from player Gun laser: ");
     Serial.println(irRecvSignal);
-    if(irRecvSignal == PLAYER1_SIGNAL || irRecvSignal == PLAYER2_SIGNAL){
+    if (irRecvSignal == PLAYER1_SIGNAL || irRecvSignal == PLAYER2_SIGNAL) {
       target.die();
     }
     irrecv.resume();  //next value
@@ -64,60 +65,60 @@ void loop() {
 
   //  Set target to die after 2 seconds of being alive and not getting shot
   /*
-  if(target.getState() == ALIVE){
+    if(target.getState() == ALIVE){
     startCounting = true;
     counter = startTime;
-  }
-  if((startTime - counter >= 2000) && startCounting = true){
+    }
+    if((startTime - counter >= 2000) && startCounting = true){
     startCounting = false;
     irRecvSignal = DIE_AFTER_DELAY_SIGNAL;
     target.revive();
-  }
+    }
   */
 }
 
 //  receiving signals from master arduino
-void receiveEvent(int howMany){
-  while(Wire.available()){
+void receiveEvent(int howMany) {
+  while (Wire.available()) {
     recvSignal = Wire.read();
     Serial.print("Received data from master arduino, data = ");
     Serial.println(recvSignal);
 
-    if (recvSignal == DIE_SIGNAL){
+    if (recvSignal == DIE_SIGNAL) {
       target.die();
     }
-    else if(recvSignal == REVIVE_SIGNAL){
+    else if (recvSignal == REVIVE_SIGNAL) {
       target.revive();
     }
   }
 }
 
-void requestEvent(){
-  if(irRecvSignal == PLAYER1_SIGNAL){
+void requestEvent() {
+  if (irRecvSignal == PLAYER1_SIGNAL) {
     Wire.write(HIT_BY_PLAYER_1);
     irRecvSignal = NULL_IR_SIGNAL;
   }
-  else if(irRecvSignal == PLAYER2_SIGNAL){
+  else if (irRecvSignal == PLAYER2_SIGNAL) {
     Wire.write(HIT_BY_PLAYER_2);
     irRecvSignal = NULL_IR_SIGNAL;
   }
-  else if(irRecvSignal == DIE_AFTER_DELAY_SIGNAL){
+  else if (irRecvSignal == DIE_AFTER_DELAY_SIGNAL) {
     Wire.write(DIE_AFTER_DELAY);
     irRecvSignal = NULL_IR_SIGNAL;
   }
-  else{
+  else {
     Wire.write(' ');
   }
 }
 
-bool actAfterDelay(unsigned long startTime, int timeInterval){
+bool actAfterDelay(unsigned long startTime, int timeInterval) {
   static unsigned long prevTime = startTime;
   unsigned long currentTime = millis();
-  if((currentTime - prevTime) >= timeInterval){
+  if ((currentTime - prevTime) >= timeInterval) {
     prevTime = currentTime;
     return true;
   }
-  else{
+  else {
     return false;
   }
 }
