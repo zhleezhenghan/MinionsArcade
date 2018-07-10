@@ -2,19 +2,13 @@
 int receiver = 11;  //initialise pin 11 as receiver pin
 IRrecv irrecv(receiver);  //create a new instance of receiver
 decode_results results;
-
-#include "TM1637.h"
+#include <Target2.h>
 #include "TM1637.h"
 #define CLK 2//pins definitions for TM1637 and can be changed to other ports       
 #define DIO 3
 TM1637 tm1637(CLK, DIO);
 
-#define IRSEND_SCORE_PLAYER1 69
-#define IRSEND_PENALTY_PLAYER1 96
-#define IRSEND_SCORE_PLAYER2 66
-#define IRSEND_PENALTY_PLAYER2 99
-
-#define VIBRATION_DELAY 100
+#define VIBRATION_DELAY 200
 
 int ones;
 int tens;
@@ -37,17 +31,25 @@ void setup()
 
 void loop()
 {
-  unsigned long startTime = millis();
-  static unsigned long startCounting = 0;
   if (irrecv.decode(&results)) {
-    Serial.println(results.value, DEC);
-    if (results.value == IRSEND_SCORE_PLAYER1) {
-      score++;
-      vibrateScore();
-    }
-    else if(results.value == IRSEND_PENALTY_PLAYER1){
-      score /= 2;
-      vibratePenalty();
+    Serial.println(results.value);
+    // Receives score from master arduino in the form of player1_score*100 + player2_score. (e.g. player1 = 5, player2 = 3, score = 0503 (503) )
+    //  parsing the 3/4 digit code into relevant score for the player.
+    //  parsing information for PLAYER 1:
+    int score_updated = (int)results.value/100;
+    //  parsing information for PLAYER 2: uncomment this for player 2
+    //  int score_updated = (int)results.value - (int)results.value/100;
+    
+    //  if score has changed, vibrate if increased score, vibrate twice if
+    //  decreased score (hit the girl)
+    if(score_updated != score){
+      if(score_updated > score){
+        vibrateScore();
+      }
+      else{
+        vibratePenalty();
+      }
+      score = score_updated;
     }
     irrecv.resume(); // Receive the next value
   }

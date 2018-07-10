@@ -10,24 +10,14 @@
    and counting scores and states of all slave arduinos at a time.
 */
 #include <Wire.h>
+#include <Target2.h>
 
 #define NUM_BYTES 5
 #define MAX_TARGETS 10
-//  Defining transmit signals to slave arduinos
-#define SEND_DIE 'd'
-#define SEND_REVIVE 'r'
-
-//  Defining receive signals from slave arduinos
-#define RECEIVE_HIT_BY_PLAYER_1 '1'
-#define RECEIVE_HIT_BY_PLAYER_2 '2'
-#define RECEIVE_DIE_AFTER_DELAY 'D'
 
 //  Defining girls and minions address number
 #define GIRL 1
 
-//  Define alive and dead states
-#define ALIVE true
-#define DEAD false
 //  initialising each target nano's address
 const int target_Address[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 bool target_State[MAX_TARGETS] = {DEAD};   // setting all target states to false(dead): true = alive, false = dead
@@ -40,10 +30,7 @@ int player2_score = 0;
 // initialising IR transmitter to the gun's receiver
 #include <IRremote.h> //include the library
 IRsend irsend1;
-#define IRSEND_SCORE_PLAYER1 69
-#define IRSEND_PENALTY_PLAYER1 96
-#define IRSEND_SCORE_PLAYER2 66
-#define IRSEND_PENALTY_PLAYER2 99
+
 
 
 //  neopixels initialisation and library
@@ -101,6 +88,7 @@ void loop() {
     }
   }
   else {
+    //  countdown neopixel
     if (startTime - counter >= 1000) {
       counter = startTime;
       updateTimerBar(0, NUMPIXELS, timer, 0, 60);
@@ -111,12 +99,12 @@ void loop() {
       recvSignal[i] = ' ';  // reset the signal back to blank to avoid double counting
       receiveData(target_Address[i], NUM_BYTES, i);  // update the signal if a specific target is hit
       updateScoreAndState(target_Address[i], recvSignal[i]);  //updating the score of each player and states
-      pingPlayerGun(target_Address[i], recvSignal[i]);
+      pingPlayerGun();
     }
 
     //  check if all targets are dead, then choose random targets to revive
     if (isAllDead()) {
-      randRevive(10);  // set random 5 targets to 'alive' state and change transmit signals
+      randRevive(10);  // set random 10 targets to 'alive' state and change transmit signals
     }
 
     //  transmit relevant data to slave nanos
@@ -205,7 +193,7 @@ void updateScoreAndState(int slaveAddress, char recvSignal) {
   if (recvSignal == ' ') {
     return;     // do nothing if no signal is received.
   }
-  else if (recvSignal == RECEIVE_HIT_BY_PLAYER_1) {
+  else if (recvSignal == HIT_BY_PLAYER_1) {
     if (slaveAddress == GIRL) {
       player1_score /= 2;
     }
@@ -213,7 +201,7 @@ void updateScoreAndState(int slaveAddress, char recvSignal) {
       player1_score++;
     }
   }
-  else if (recvSignal == RECEIVE_HIT_BY_PLAYER_2) {
+  else if (recvSignal == HIT_BY_PLAYER_2) {
     if (slaveAddress == GIRL) {
       player2_score /= 2;
     }
@@ -224,24 +212,15 @@ void updateScoreAndState(int slaveAddress, char recvSignal) {
   target_State[slaveAddress] = DEAD;  // change state to dead if it's hit
 }
 
-//  sends IR signal to the player's gun to vibrate and update score on player gun's arduino
-void pingPlayerGun(int slaveAddress, char recvSignal) {
-  if (recvSignal == RECEIVE_HIT_BY_PLAYER_1) {
-    if (slaveAddress == GIRL) {
-      irsend1.sendSony(IRSEND_PENALTY_PLAYER1, 12);
-    }
-    else {
-      irsend1.sendSony(IRSEND_SCORE_PLAYER1, 12);
-    }
-  }
-  else if (recvSignal == RECEIVE_HIT_BY_PLAYER_2) {
-    if (slaveAddress == GIRL) {
-      irsend1.sendSony(IRSEND_PENALTY_PLAYER2, 12);
-    }
-    else {
-      irsend1.sendSony(IRSEND_SCORE_PLAYER2, 12);
-    }
-  }
+/*  sends IR signal to the player's gun to vibrate and update score on player gun's arduino
+ *   This signal is continuously sent out by the IR transmitter and will contain information on each
+ *   player's current score. The gun receiver will receive the signal and parse out their respective score and 
+ *   update the sevseg accordingly.
+ */
+void pingPlayerGun() {
+  //  the 2 player scores are parsed into a 4 digit number. (e.g. player1_score = 2, player2_score = 4, score = 0204)
+  int score_send = player1_score*100 + player2_score;
+  irsend1.sendSony(score_send, 12);
 }
 
 //  check if all targets are dead
@@ -284,7 +263,7 @@ void randRevive(int numToRevive) {
   getRandomNumbers(numArray, numToRevive);
   for (int i = 0; i < numToRevive; i++) {
     target_State[i] = ALIVE;    // change state to being alive
-    transSignal[i] = SEND_REVIVE; // change the transmit signal for the target to revive
+    transSignal[i] = REVIVE_SIGNAL; // change the transmit signal for the target to revive
   }
 }
 
@@ -292,7 +271,7 @@ void randRevive(int numToRevive) {
 void sendAllDead() {
   for (int i = 0; i < MAX_TARGETS; i++) {
     target_State[i] = DEAD;     // change state to being alive
-    transSignal[i] = SEND_DIE;  // change the transmit signal for the target to die
+    transSignal[i] = DIE_SIGNAL;  // change the transmit signal for the target to die
     sendData(target_Address[i], transSignal[i]);
     transSignal[i] = ' ';
   }
