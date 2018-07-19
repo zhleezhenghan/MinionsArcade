@@ -4,7 +4,7 @@
 #endif
 
 #define PIN 6
-#define NUMPIXELS 82
+#define NUMPIXELS 49
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)

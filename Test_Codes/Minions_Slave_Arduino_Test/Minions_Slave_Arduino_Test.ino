@@ -43,7 +43,6 @@ void setup() {
   target.setType('M');
 
   //  initialising starting position of servos
-  targetServo.write(0);
 
   irrecv.enableIRIn();  //start the receiver
 }

@@ -14,14 +14,14 @@
 
 #define NUM_BYTES 5
 // changed the max targets from 10 to 6
-#define MAX_TARGETS 5
+#define MAX_TARGETS 6
 
 //  Defining girls and minions address number
 #define GIRL_ADDRESS 1
 
 //  initialising each target nano's address
 //  changed addresses from 10 slaves to 6 slaves
-const int target_Address[] = {7, 8, 9, 1, 5};
+const int target_Address[] = {1, 2, 3, 4, 5, 6};
 bool target_State[MAX_TARGETS] = {DEAD};   // setting all target states to false(dead): true = alive, false = dead
 char recvSignal[MAX_TARGETS] = {' '};    // initialising all receive signals from slave arduino with placeholder character ' '
 char transSignal[MAX_TARGETS] = {' '};   // initialising all transmit singals from master arduino to slave arduinos
@@ -42,7 +42,7 @@ IRsend irsend1;
 #endif
 
 #define PIN 6
-#define NUMPIXELS 82
+#define NUMPIXELS 49
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -83,6 +83,15 @@ void loop() {
           break;
         case 2:
           flashColor(strip.Color(255, 0, 0));
+          break;
+        case 3:
+          flashColor(strip.Color(244, 66, 241));
+          break;
+        case 4:
+          flashColor(strip.Color(119, 66, 244));
+          break;
+        case 5:
+          flashColor(strip.Color(66, 244, 170));
           break;
         default:
           flashColor(strip.Color(0, 0, 0));

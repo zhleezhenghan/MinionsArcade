@@ -34,7 +34,7 @@ static unsigned long counter = 0;
 
 void setup() {
   // put your setup code here, to run once:
-  Wire.begin(5);  // setting address of slave ( change this code from 0 to 9 for each target arduino nano
+  Wire.begin(3);  // setting address of slave ( change this code from 0 to 9 for each target arduino nano
   Wire.onReceive(receiveEvent);
   Wire.onRequest(requestEvent);
   Serial.begin(9600);
@@ -46,7 +46,7 @@ void setup() {
   target.setType('M');
 
   //  initialising starting position of servos
-  targetServo.write(0);
+  targetServo.write(125);
 
   irrecv.enableIRIn();  //start the receiver
 }
@@ -63,14 +63,14 @@ void loop() {
     irrecv.resume();  //next value
   }
 
-  if(!startCounting){
+  if (!startCounting) {
     counter = startTime;
   }
   //  Set target to die after 2 seconds of being alive and not getting shot
   if (target.getState() == ALIVE) {
     startCounting = true;
   }
-  else{
+  else {
     startCounting = false;
   }
   if ((startTime - counter >= 2000) && (startCounting == true)) {
