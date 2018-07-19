@@ -29,9 +29,12 @@ char recvSignal = ' ';
 int irRecvSignal;
 bool startCounting = false;
 
+unsigned long startTime = 0;
+static unsigned long counter = 0;
+
 void setup() {
   // put your setup code here, to run once:
-  Wire.begin(6);  // setting address of slave ( change this code from 0 to 9 for each target arduino nano
+  Wire.begin(5);  // setting address of slave ( change this code from 0 to 9 for each target arduino nano
   Wire.onReceive(receiveEvent);
   Wire.onRequest(requestEvent);
   Serial.begin(9600);
@@ -49,8 +52,7 @@ void setup() {
 }
 
 void loop() {
-  unsigned long startTime = millis();
-  static unsigned long counter = 0;
+  startTime = millis();
   if (irrecv.decode(&results)) { //if we have received an IR signal
     irRecvSignal = results.value;
     Serial.print("Received signal from player Gun laser: ");
@@ -61,16 +63,21 @@ void loop() {
     irrecv.resume();  //next value
   }
 
-
+  if(!startCounting){
+    counter = startTime;
+  }
   //  Set target to die after 2 seconds of being alive and not getting shot
   if (target.getState() == ALIVE) {
     startCounting = true;
-    counter = startTime;
   }
-  if ((startTime - counter >= 2000) && startCounting = true) {
+  else{
+    startCounting = false;
+  }
+  if ((startTime - counter >= 2000) && (startCounting == true)) {
     startCounting = false;
     irRecvSignal = DIE_AFTER_DELAY_SIGNAL;
-    target.revive();
+    counter = startTime;
+    target.die();
   }
 }
 

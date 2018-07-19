@@ -55,23 +55,16 @@ void setup() {
 }
 
 void loop() {
-  //  code for timer neopixels
-  unsigned long timer = 60; 
-  unsigned long startTime = millis();
-  static unsigned long counter = 0;
-  if(timer - counter >= 1000){
-    counter = startTime;
-    timer--;
-    updateTimerBar(0, NUMPIXELS, timer, 0, 60); 
-  }
   //  code to move each target
   for (int i = 0; i < MAX_TARGETS; i++) {
     sendData(target_Address[i], REVIVE_SIGNAL);
-    transSignal[i] = ' ';
-    delay(1000);
-    sendData(target_Address[i], DIE_SIGNAL);
-    delay(1000);
   }
+  delay(1000);
+  for (int i = 0; i < MAX_TARGETS; i++) {
+    sendData(target_Address[i], DIE_SIGNAL);
+    //delay(1000);
+  }
+  delay(1000);
 }
 
 

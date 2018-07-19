@@ -41,7 +41,6 @@ void setup() {
   target.attachServo(targetServo);
   //  setting type of target: Minion ('M') or Girl ('G')
   target.setType('M');
-  target.revive();
 
   //  initialising starting position of servos
   targetServo.write(0);
@@ -62,19 +61,18 @@ void loop() {
     irrecv.resume();  //next value
   }
 
-
-  //  Set target to die after 2 seconds of being alive and not getting shot
-  /*
-    if(target.getState() == ALIVE){
-    startCounting = true;
+  Serial.println(target.getState());
+  
+  // change target state every 2 seconds
+  if ((startTime - counter >= 2000)) {
+    if(target.getState() == DEAD){
+      target.revive();
+    }
+    else{
+      target.die();
+    }
     counter = startTime;
-    }
-    if((startTime - counter >= 2000) && startCounting = true){
-    startCounting = false;
-    irRecvSignal = DIE_AFTER_DELAY_SIGNAL;
-    target.revive();
-    }
-  */
+  }
 }
 
 //  receiving signals from master arduino

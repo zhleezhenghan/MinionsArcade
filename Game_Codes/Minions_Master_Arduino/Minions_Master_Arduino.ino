@@ -13,13 +13,15 @@
 #include <Target2.h>
 
 #define NUM_BYTES 5
-#define MAX_TARGETS 10
+// changed the max targets from 10 to 6
+#define MAX_TARGETS 5
 
 //  Defining girls and minions address number
-#define GIRL 1
+#define GIRL_ADDRESS 1
 
 //  initialising each target nano's address
-const int target_Address[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+//  changed addresses from 10 slaves to 6 slaves
+const int target_Address[] = {7, 8, 9, 1, 5};
 bool target_State[MAX_TARGETS] = {DEAD};   // setting all target states to false(dead): true = alive, false = dead
 char recvSignal[MAX_TARGETS] = {' '};    // initialising all receive signals from slave arduino with placeholder character ' '
 char transSignal[MAX_TARGETS] = {' '};   // initialising all transmit singals from master arduino to slave arduinos
@@ -60,7 +62,7 @@ void setup() {
 }
 
 void loop() {
-
+  Serial.println(isAllDead());
   //  initialise a counter for time keeping
   unsigned long startTime = millis();
   static long timer = 60;
@@ -98,13 +100,13 @@ void loop() {
     for (int i = 0; i < MAX_TARGETS; i++) {
       recvSignal[i] = ' ';  // reset the signal back to blank to avoid double counting
       receiveData(target_Address[i], NUM_BYTES, i);  // update the signal if a specific target is hit
-      updateScoreAndState(target_Address[i], recvSignal[i]);  //updating the score of each player and states
+      updateScoreAndState(target_Address[i], recvSignal[i], i);  //updating the score of each player and states
       pingPlayerGun();
     }
 
     //  check if all targets are dead, then choose random targets to revive
     if (isAllDead()) {
-      randRevive(10);  // set random 10 targets to 'alive' state and change transmit signals
+      randRevive(MAX_TARGETS);  // set random 10 targets to 'alive' state and change transmit signals
     }
 
     //  transmit relevant data to slave nanos
@@ -177,7 +179,7 @@ void sendData(int slaveAddress, char c) {
 void receiveData(int slaveAddress, int dataBytes, int counter) {
   Wire.requestFrom(slaveAddress, dataBytes);  //request from address of the slave arduino, and number of bytes of data
 
-  while (Wire.available()) {
+  if (Wire.available()) {
     recvSignal[counter] = Wire.read();
     Serial.print("Received data from ");
     Serial.print(slaveAddress);
@@ -189,12 +191,12 @@ void receiveData(int slaveAddress, int dataBytes, int counter) {
 /*  updating the score based on the receiving signal from slave nano.
     differentiate score based on each player hit, as well as if the target is a penalty/score
 */
-void updateScoreAndState(int slaveAddress, char recvSignal) {
+void updateScoreAndState(int slaveAddress, char recvSignal, int counter) {
   if (recvSignal == ' ') {
     return;     // do nothing if no signal is received.
   }
   else if (recvSignal == HIT_BY_PLAYER_1) {
-    if (slaveAddress == GIRL) {
+    if (slaveAddress == GIRL_ADDRESS) {
       player1_score /= 2;
     }
     else {
@@ -202,14 +204,14 @@ void updateScoreAndState(int slaveAddress, char recvSignal) {
     }
   }
   else if (recvSignal == HIT_BY_PLAYER_2) {
-    if (slaveAddress == GIRL) {
+    if (slaveAddress == GIRL_ADDRESS) {
       player2_score /= 2;
     }
     else {
       player2_score++;
     }
   }
-  target_State[slaveAddress] = DEAD;  // change state to dead if it's hit
+  target_State[counter] = DEAD;  // change state to dead if it's hit
 }
 
 /*  sends IR signal to the player's gun to vibrate and update score on player gun's arduino
@@ -262,8 +264,8 @@ void randRevive(int numToRevive) {
   int numArray[numToRevive];
   getRandomNumbers(numArray, numToRevive);
   for (int i = 0; i < numToRevive; i++) {
-    target_State[i] = ALIVE;    // change state to being alive
-    transSignal[i] = REVIVE_SIGNAL; // change the transmit signal for the target to revive
+    target_State[numArray[i]] = ALIVE;    // change state to being alive
+    transSignal[numArray[i]] = REVIVE_SIGNAL; // change the transmit signal for the target to revive
   }
 }
 
