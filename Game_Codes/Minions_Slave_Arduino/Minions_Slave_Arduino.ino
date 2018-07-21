@@ -34,7 +34,7 @@ static unsigned long counter = 0;
 
 void setup() {
   // put your setup code here, to run once:
-  Wire.begin(3);  // setting address of slave ( change this code from 0 to 9 for each target arduino nano
+  Wire.begin(5);  // setting address of slave ( change this code from 0 to 9 for each target arduino nano
   Wire.onReceive(receiveEvent);
   Wire.onRequest(requestEvent);
   Serial.begin(9600);
@@ -73,9 +73,9 @@ void loop() {
   else {
     startCounting = false;
   }
-  if ((startTime - counter >= 2000) && (startCounting == true)) {
+  if ((startTime - counter >= 4000) && (startCounting == true)) {
     startCounting = false;
-    irRecvSignal = DIE_AFTER_DELAY_SIGNAL;
+    //  irRecvSignal = DIE_AFTER_DELAY_SIGNAL;
     counter = startTime;
     target.die();
   }
@@ -100,19 +100,19 @@ void receiveEvent(int howMany) {
 void requestEvent() {
   if (irRecvSignal == PLAYER1_SIGNAL) {
     Wire.write(HIT_BY_PLAYER_1);
-    irRecvSignal = NULL_IR_SIGNAL;
   }
   else if (irRecvSignal == PLAYER2_SIGNAL) {
     Wire.write(HIT_BY_PLAYER_2);
-    irRecvSignal = NULL_IR_SIGNAL;
-  }
-  else if (irRecvSignal == DIE_AFTER_DELAY_SIGNAL) {
-    Wire.write(DIE_AFTER_DELAY);
-    irRecvSignal = NULL_IR_SIGNAL;
   }
   else {
-    Wire.write(' ');
+    if(target.getState() == ALIVE){
+      Wire.write(ALIVE_STATUS);
+    }
+    else{
+      Wire.write(DIE_STATUS);
+    }
   }
+  irRecvSignal = NULL_IR_SIGNAL;
 }
 
 bool actAfterDelay(unsigned long startTime, int timeInterval) {

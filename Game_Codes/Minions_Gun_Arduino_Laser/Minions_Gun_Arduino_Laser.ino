@@ -46,7 +46,7 @@ void loop() {
     startRecovering = false;
     if(currentMana >= 0 ){
       //  change the send signal between SEND_PLAYER1 and SEND_PLAYER2 depending on the gun
-      irsend1.sendSony(PLAYER1_SIGNAL, 12);   //ASCII code 69, 12 bits 
+      irsend1.sendSony(PLAYER2_SIGNAL, 12);   //ASCII code 69, 12 bits 
       currentMana--;
       delay(25);                  //minimum 25ms delay
     }

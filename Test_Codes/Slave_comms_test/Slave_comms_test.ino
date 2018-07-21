@@ -121,7 +121,8 @@ void loop() {
     delay(10);
     //  check if all targets are dead, then choose random targets to revive
     if (isAllDead()) {
-      randRevive(4);  // set random 10 targets to 'alive' state and change transmit signals
+      target_State[4] = ALIVE;    // change state to being alive
+      transSignal[4] = REVIVE_SIGNAL; // change the transmit signal for the target to revive
     }
 
     //  transmit relevant data to slave nanos
@@ -207,13 +208,11 @@ void receiveData(int slaveAddress, int dataBytes, int counter) {
     differentiate score based on each player hit, as well as if the target is a penalty/score
 */
 void updateScoreAndState(int slaveAddress, char recvSignal, int counter) {
-  if(recvSignal == DIE_STATUS){
-    target_State[counter] = DEAD;
+  if (recvSignal == ' ') {
+    return;     // do nothing if no signal is received.
   }
-  else if (recvSignal == ALIVE_STATUS){
-    target_State[counter] = ALIVE;
-  }
-  else if (recvSignal == HIT_BY_PLAYER_1) {
+  target_State[counter] = DEAD;  // change state to dead if it's hit
+  if (recvSignal == HIT_BY_PLAYER_1) {
     if (slaveAddress == GIRL_ADDRESS) {
       player1_score /= 2;
     }
@@ -241,7 +240,6 @@ void pingPlayerGun() {
   //  the 2 player scores are parsed into a 4 digit number. (e.g. player1_score = 2, player2_score = 4, score = 0204)
   int score_send = player1_score*100 + player2_score;
   irsend1.sendSony(score_send, 12);
-  delay(25);
 }
 
 //  check if all targets are dead
