@@ -4,8 +4,8 @@
 
 Target2::Target2(){
 state = DEAD;
-down = 0;
-up = 75;
+down = 125;
+up = 70;
 }
 
 void Target2::attachLED(int LEDPin){
@@ -30,7 +30,6 @@ void Target2::die(){
     digitalWrite(LEDPin,LOW);
     servo.write(down);
     state = DEAD;
-    timeOfDeath = millis();
     }
 }
 
@@ -43,9 +42,9 @@ void Target2::setState(bool state){
 }
 
 void Target2::revive(){
-    if (state == 0&&(millis()-timeOfDeath>1000)){
+    if (state == DEAD){
     digitalWrite(LEDPin,HIGH);
     servo.write(up);
-    state = 1;
+    state = ALIVE;
     }
 }

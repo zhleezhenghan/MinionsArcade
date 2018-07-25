@@ -27,6 +27,8 @@
 #define PLAYER1_SIGNAL 1
 #define PLAYER2_SIGNAL 2
 #define NULL_IR_SIGNAL 50
+#define DIE_STATUS 70
+#define ALIVE_STATUS 80
 #define DIE_AFTER_DELAY_SIGNAL 60
 
 class Target2
