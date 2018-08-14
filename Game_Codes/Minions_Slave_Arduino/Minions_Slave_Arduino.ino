@@ -34,7 +34,7 @@ static unsigned long counter = 0;
 
 void setup() {
   // put your setup code here, to run once:
-  Wire.begin(5);  // setting address of slave ( change this code from 0 to 9 for each target arduino nano
+  Wire.begin(1);  // setting address of slave ( change this code from 0 to 9 for each target arduino nano
   Wire.onReceive(receiveEvent);
   Wire.onRequest(requestEvent);
   Serial.begin(9600);

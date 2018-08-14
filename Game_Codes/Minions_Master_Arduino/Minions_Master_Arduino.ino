@@ -58,11 +58,10 @@ void setup() {
   colorWipeReverse(strip.Color(0, 0, 50), 10);
   colorWipe(strip.Color(50, 50, 0), 10);
 
-  randomSeed(analogRead(A0));
+  randomSeed(analogRead(0));
 }
 
 void loop() {
-  Serial.println(isAllDead());
   //  initialise a counter for time keeping
   unsigned long startTime = millis();
   static long timer = 60;
@@ -120,6 +119,10 @@ void loop() {
     }
     delay(10);
     //  check if all targets are dead, then choose random targets to revive
+    Serial.println("------------------------------------------------------------");
+    Serial.print("is all dead: ");
+    Serial.println(isAllDead());
+    Serial.println("-------------------------------------------------------------");
     if (isAllDead()) {
       randRevive(4);  // set random 10 targets to 'alive' state and change transmit signals
     }
