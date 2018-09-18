@@ -32,15 +32,15 @@ void setup()
 void loop()
 {
   if (irrecv.decode(&results)) {
-    Serial.print("results.value = ");
-    Serial.println(results.value);
-    if (results.value < 1000) {
+    //Serial.print("results.value = ");
+    //Serial.println(results.value);
+    if (results.value < 10000) {
       // Receives score from master arduino in the form of player1_score*100 + player2_score. (e.g. player1 = 5, player2 = 3, score = 0503 (503) )
       //  parsing the 3/4 digit code into relevant score for the player.
       //  parsing information for PLAYER 1:
       //  int score_updated = (int)results.value / 100;
       //  parsing information for PLAYER 2: uncomment this for player 2
-      int score_updated = (int)results.value - ( ((int)results.value/100)*100 );
+        int score_updated = (int)results.value - ( ((int)results.value/100)*100 );
       Serial.print("Score_updated = ");
       Serial.println(score_updated);
       //  if score has changed, vibrate if increased score, vibrate twice if

@@ -69,6 +69,7 @@ void loop() {
 
   static int i = constrain(i, 0, 3);
   if (isGameOver(timer)) {
+    //  Game Duration over, and game over colour animations
     sendAllDead();
     if (startTime - counter >= 500) {
       i++;
