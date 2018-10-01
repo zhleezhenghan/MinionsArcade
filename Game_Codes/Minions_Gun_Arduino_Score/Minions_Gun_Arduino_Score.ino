@@ -58,7 +58,7 @@ void loop()
     irrecv.resume(); // Receive the next value
   }
   displayNum(score);
-  delay(100); // delete this line if it doesn't reduce the noise.
+  delay(500); // delete this line if it doesn't reduce the noise.
 }
 
 
